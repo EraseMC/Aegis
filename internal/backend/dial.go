@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/oomph-ac/oomph/anticheat/integration/proxy"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/login"
@@ -14,11 +15,12 @@ import (
 func Dial(backup string, timeout time.Duration) proxy.DialFunc {
 	return func(ctx context.Context, primary string, identity login.IdentityData, client login.ClientData, _ string) (proxy.Backend, error) {
 		dialer := minecraft.Dialer{
-			IdentityData:        identity,
-			ClientData:          client,
-			KeepXBLIdentityData: true,
-			FlushRate:           -1,
-			EnableBatchReading:  true,
+			IdentityData:         identity,
+			ClientData:           client,
+			KeepXBLIdentityData:  true,
+			FlushRate:            -1,
+			EnableBatchReading:   true,
+			DownloadResourcePack: skipResourcePack,
 		}
 
 		var errs []error
@@ -39,6 +41,10 @@ func dial(ctx context.Context, dialer *minecraft.Dialer, address string, timeout
 	defer cancel()
 
 	return dialer.DialContext(ctx, "raknet", address)
+}
+
+func skipResourcePack(uuid.UUID, string, int, int) bool {
+	return false
 }
 
 func addresses(primary, backup string) []string {
