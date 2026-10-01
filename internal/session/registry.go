@@ -12,18 +12,22 @@ import (
 const crashMessage = "§cInternal proxy error, please reconnect."
 
 type Registry struct {
-	log *slog.Logger
+	log        *slog.Logger
+	debugModes []int
 
 	mu      sync.RWMutex
 	players map[*player.Player]struct{}
 }
 
-func NewRegistry(log *slog.Logger) *Registry {
-	return &Registry{log: log, players: make(map[*player.Player]struct{})}
+func NewRegistry(log *slog.Logger, debugModes []int) *Registry {
+	return &Registry{log: log, debugModes: debugModes, players: make(map[*player.Player]struct{})}
 }
 
 func (r *Registry) Configure(p *player.Player) {
 	p.SetRecoverFunc(r.recover)
+	for _, mode := range r.debugModes {
+		p.Dbg.Toggle(mode)
+	}
 	p.HandleEvents(&handler{registry: r})
 }
 

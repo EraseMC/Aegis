@@ -23,8 +23,18 @@ const (
 	contentKeysFile = "content_keys.json"
 )
 
-func Run(ctx context.Context, log *slog.Logger, configPath string) error {
-	if err := loadConfig(configPath); err != nil {
+type Options struct {
+	ConfigPath string
+	DebugModes []string
+}
+
+func Run(ctx context.Context, log *slog.Logger, opts Options) error {
+	if err := loadConfig(opts.ConfigPath); err != nil {
+		return err
+	}
+
+	debugModes, err := session.ParseDebugModes(opts.DebugModes)
+	if err != nil {
 		return err
 	}
 
@@ -43,7 +53,7 @@ func Run(ctx context.Context, log *slog.Logger, configPath string) error {
 
 	utils.InitializeBlockNameMapping()
 
-	sessions := session.NewRegistry(log)
+	sessions := session.NewRegistry(log, debugModes)
 	serveCtx, cancel := context.WithCancel(context.WithoutCancel(ctx))
 	defer cancel()
 
