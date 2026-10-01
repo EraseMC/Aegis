@@ -75,6 +75,7 @@ func Run(ctx context.Context, log *slog.Logger, opts Options) error {
 			AcceptedProtocols:      legacy,
 			AuthenticationDisabled: opts.Offline,
 			FlushRate:              -1,
+			ErrorLog:               log,
 		},
 		Dial:      backend.Dial(cfg.BackupAddress, dialTimeout),
 		Configure: sessions.Configure,
