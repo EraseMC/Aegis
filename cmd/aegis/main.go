@@ -19,6 +19,7 @@ func main() {
 func run() int {
 	configPath := flag.String("config", "oomph.hjson", "path to the Oomph configuration")
 	debugModes := flag.String("debug", "", "comma separated Oomph debug modes logged for every player")
+	offline := flag.Bool("offline", false, "skip Xbox Live authentication, for local testing only")
 	flag.Parse()
 
 	level := slog.LevelInfo
@@ -29,7 +30,7 @@ func run() int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	opts := app.Options{ConfigPath: *configPath}
+	opts := app.Options{ConfigPath: *configPath, Offline: *offline}
 	if *debugModes != "" {
 		opts.DebugModes = strings.Split(*debugModes, ",")
 	}

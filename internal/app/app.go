@@ -15,6 +15,7 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft/resource"
 
 	"github.com/EraseMC/Aegis/internal/backend"
+	"github.com/EraseMC/Aegis/internal/protocols"
 	"github.com/EraseMC/Aegis/internal/session"
 )
 
@@ -26,6 +27,7 @@ const (
 type Options struct {
 	ConfigPath string
 	DebugModes []string
+	Offline    bool
 }
 
 func Run(ctx context.Context, log *slog.Logger, opts Options) error {
@@ -51,6 +53,11 @@ func Run(ctx context.Context, log *slog.Logger, opts Options) error {
 		return err
 	}
 
+	legacy, err := protocols.Legacy()
+	if err != nil {
+		return err
+	}
+
 	utils.InitializeBlockNameMapping()
 
 	sessions := session.NewRegistry(log, debugModes)
@@ -62,10 +69,12 @@ func Run(ctx context.Context, log *slog.Logger, opts Options) error {
 		RemoteAddress: cfg.RemoteAddress,
 		Log:           log,
 		Listen: minecraft.ListenConfig{
-			StatusProvider:       status,
-			ResourcePacks:        packs,
-			TexturePacksRequired: cfg.Resource.RequirePacks,
-			FlushRate:            -1,
+			StatusProvider:         status,
+			ResourcePacks:          packs,
+			TexturePacksRequired:   cfg.Resource.RequirePacks,
+			AcceptedProtocols:      legacy,
+			AuthenticationDisabled: opts.Offline,
+			FlushRate:              -1,
 		},
 		Dial:      backend.Dial(cfg.BackupAddress, dialTimeout),
 		Configure: sessions.Configure,

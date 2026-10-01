@@ -1,11 +1,11 @@
 github.com/EraseMC/dragonfly v0.0.0-20261001183901-0c580bde200e h1:sd71odCc0dqi8C+XO8jIgn+NyqTmIO6myZtY45elOJw=
 github.com/EraseMC/dragonfly v0.0.0-20261001183901-0c580bde200e/go.mod h1:edW4tJmnTBFEAsyq0i+jNANDQVdPHmdbqBQpkHVXhWw=
-github.com/EraseMC/gophertunnel v0.0.0-20261001192302-1d8e0124769d h1:6v/VF9xkkvrDzgvnXcazFRGsQWv+fli4LpxCLh0+PmA=
-github.com/EraseMC/gophertunnel v0.0.0-20261001192302-1d8e0124769d/go.mod h1:ZcY+NKGUQ4519TQOpeDrzYpoX8D0heL7J1oGjdzWlz8=
-github.com/EraseMC/oomph/anticheat v0.0.0-20261001194342-f8a86ab5d3bf h1:q2U7y/mOHCbe08WlwayRhz596EB2+BobxBwYRTY5TPM=
-github.com/EraseMC/oomph/anticheat v0.0.0-20261001194342-f8a86ab5d3bf/go.mod h1:sJ03rvJk4ziZ6F3ECdc0IdwG4pcKMg0MD+/z/ufYFoU=
-github.com/EraseMC/oomph/transferproxy v0.0.0-20261001194342-f8a86ab5d3bf h1:W3XiMlfkeMrAApD0hdNh4VZKHm7HRBZB2qC/8RUYZD0=
-github.com/EraseMC/oomph/transferproxy v0.0.0-20261001194342-f8a86ab5d3bf/go.mod h1:IEgtq20yogTTq+DuYCdRcXPeHXNv0Vm5CgSceFMvpqY=
+github.com/EraseMC/gophertunnel v0.0.0-20261001202700-5224d0f358f4 h1:e1V6ewh85eWxD1NjFPxoKV4GZwbSxdKkIZHkn277hMU=
+github.com/EraseMC/gophertunnel v0.0.0-20261001202700-5224d0f358f4/go.mod h1:ZcY+NKGUQ4519TQOpeDrzYpoX8D0heL7J1oGjdzWlz8=
+github.com/EraseMC/oomph/anticheat v0.0.0-20261001203301-3448dc7b246e h1:sp2b3bcune8pioU/lnCUMMZ0gKTj5fOBEalE33JUph8=
+github.com/EraseMC/oomph/anticheat v0.0.0-20261001203301-3448dc7b246e/go.mod h1:sJ03rvJk4ziZ6F3ECdc0IdwG4pcKMg0MD+/z/ufYFoU=
+github.com/EraseMC/oomph/transferproxy v0.0.0-20261001203301-3448dc7b246e h1:ok08HUqheMM44aTGCsmDpg0j1QsngAlanbntzRYoveo=
+github.com/EraseMC/oomph/transferproxy v0.0.0-20261001203301-3448dc7b246e/go.mod h1:IEgtq20yogTTq+DuYCdRcXPeHXNv0Vm5CgSceFMvpqY=
 github.com/brentp/intintmap v0.0.0-20251106190759-56907b1f8479 h1:UZbbt19ACBOFO+CiDQFjaEoPJkBhj7GNGtIq59WR6Os=
 github.com/brentp/intintmap v0.0.0-20251106190759-56907b1f8479/go.mod h1:TOk10ahXejq9wkEaym3KPRNeuR/h5Jx+s8QRWIa2oTM=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
@@ -102,6 +102,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/segmentio/fasthash v1.0.3 h1:EI9+KE1EwvMLBWwjpRDc+fEM+prwxDYbslddQGtrmhM=
 github.com/segmentio/fasthash v1.0.3/go.mod h1:waKX8l2N8yckOgmSsXJi7x1ZfdKZ4x7KRMzBtS3oedY=
+github.com/shawtymarco/go-multiversion v0.0.0-20260930051841-b58fcf5ccfdf h1:WCyHlZFB38k3hr289LMcaCubplcAkOuB0b54EBC5hI4=
+github.com/shawtymarco/go-multiversion v0.0.0-20260930051841-b58fcf5ccfdf/go.mod h1:tbj1ZGypl2mt+znw8IoG0tcMtnV2X2TiVMoVRyeUWW8=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/wlynxg/anet v0.0.5 h1:J3VJGi1gvo0JwZ/P1/Yc/8p63SoW98B5dHkYDmpgvvU=
