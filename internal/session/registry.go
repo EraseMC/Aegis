@@ -7,6 +7,8 @@ import (
 
 	"github.com/df-mc/dragonfly/server/event"
 	"github.com/oomph-ac/oomph/anticheat/player"
+
+	"github.com/EraseMC/Aegis/internal/bridge"
 )
 
 const crashMessage = "§cInternal proxy error, please reconnect."
@@ -28,7 +30,7 @@ func (r *Registry) Configure(p *player.Player) {
 	for _, mode := range r.debugModes {
 		p.Dbg.Toggle(mode)
 	}
-	p.HandleEvents(&handler{registry: r})
+	p.HandleEvents(&handler{registry: r, punished: make(map[string]struct{})})
 }
 
 func (r *Registry) DisconnectAll(message string) {
@@ -72,6 +74,7 @@ type handler struct {
 	player.NopEventHandler
 
 	registry *Registry
+	punished map[string]struct{}
 }
 
 func (h *handler) HandleJoin(ctx *event.Context[*player.Player]) {
@@ -80,4 +83,24 @@ func (h *handler) HandleJoin(ctx *event.Context[*player.Player]) {
 
 func (h *handler) HandleQuit(ctx *event.Context[*player.Player]) {
 	h.registry.remove(ctx.Val())
+}
+
+func (h *handler) HandleFlag(ctx *event.Context[*player.Player], d player.Detection, extraData []any) {
+	if err := bridge.SendFlag(ctx.Val(), d, extraData); err != nil {
+		h.registry.log.Warn("forward flag", "player", ctx.Val().Name(), "detection", bridge.Key(d), "err", err)
+	}
+}
+
+func (h *handler) HandlePunishment(ctx *event.Context[*player.Player], d player.Detection, _ *string) {
+	ctx.Cancel()
+
+	key := bridge.Key(d)
+	if _, ok := h.punished[key]; ok {
+		return
+	}
+	h.punished[key] = struct{}{}
+
+	if err := bridge.SendPunishment(ctx.Val(), d); err != nil {
+		h.registry.log.Warn("forward punishment", "player", ctx.Val().Name(), "detection", key, "err", err)
+	}
 }
