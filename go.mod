@@ -2,18 +2,18 @@ module github.com/EraseMC/Aegis
 
 go 1.26.0
 
-replace github.com/df-mc/dragonfly => github.com/oomph-ac/dragonfly v0.0.0-20260904153233-9221758c1eee
-
-replace github.com/sandertv/gophertunnel => github.com/oomph-ac/gophertunnel v0.0.0-20260830160110-2974690ef0c6
-
-replace github.com/sandertv/go-raknet => github.com/oomph-ac/go-raknet v0.0.0-20260804171633-295d5444b424
-
-replace github.com/oomph-ac/oomph/transferproxy => github.com/oomph-ac/oomph/transferproxy v0.0.0-20260906074730-815f8038cd3c
+replace (
+	github.com/df-mc/dragonfly => github.com/EraseMC/dragonfly v0.0.0-20261001183901-0c580bde200e
+	github.com/oomph-ac/oomph/anticheat => github.com/EraseMC/oomph/anticheat v0.0.0-20261001184050-e71c27c128f6
+	github.com/oomph-ac/oomph/transferproxy => github.com/EraseMC/oomph/transferproxy v0.0.0-20261001184050-e71c27c128f6
+	github.com/sandertv/go-raknet => github.com/oomph-ac/go-raknet v0.0.0-20260804171633-295d5444b424
+	github.com/sandertv/gophertunnel => github.com/EraseMC/gophertunnel v0.0.0-20261001183819-c863297761c0
+)
 
 require (
 	github.com/df-mc/dragonfly v0.10.14-0.20260508142332-b4a4d55303f9
 	github.com/oomph-ac/oomph/anticheat v0.0.0-20260906074730-815f8038cd3c
-	github.com/sandertv/gophertunnel v1.61.0
+	github.com/sandertv/gophertunnel v1.62.0
 )
 
 require (
@@ -27,7 +27,7 @@ require (
 	github.com/df-mc/go-xsapi/v2 v2.0.3 // indirect
 	github.com/df-mc/goleveldb v1.1.9 // indirect
 	github.com/df-mc/jsonc v1.0.5 // indirect
-	github.com/df-mc/worldupgrader v1.0.21 // indirect
+	github.com/df-mc/worldupgrader v1.0.22 // indirect
 	github.com/ethaniccc/float32-cube v0.0.0-20250511224129-7af1f8c4ee12 // indirect
 	github.com/go-gl/mathgl v1.2.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
