@@ -2,10 +2,10 @@ github.com/EraseMC/dragonfly v0.0.0-20261001183901-0c580bde200e h1:sd71odCc0dqi8
 github.com/EraseMC/dragonfly v0.0.0-20261001183901-0c580bde200e/go.mod h1:edW4tJmnTBFEAsyq0i+jNANDQVdPHmdbqBQpkHVXhWw=
 github.com/EraseMC/gophertunnel v0.0.0-20261001192302-1d8e0124769d h1:6v/VF9xkkvrDzgvnXcazFRGsQWv+fli4LpxCLh0+PmA=
 github.com/EraseMC/gophertunnel v0.0.0-20261001192302-1d8e0124769d/go.mod h1:ZcY+NKGUQ4519TQOpeDrzYpoX8D0heL7J1oGjdzWlz8=
-github.com/EraseMC/oomph/anticheat v0.0.0-20261001191538-f12038b6c22f h1:YbNCJx5tL9X/4yONQvW+do9+iuoOJNALsbs7PVa29W4=
-github.com/EraseMC/oomph/anticheat v0.0.0-20261001191538-f12038b6c22f/go.mod h1:sJ03rvJk4ziZ6F3ECdc0IdwG4pcKMg0MD+/z/ufYFoU=
-github.com/EraseMC/oomph/transferproxy v0.0.0-20261001191538-f12038b6c22f h1:eoSzgYJi4w8PqhDq+/kjus19yUc+ShAXvaXHvfGVMnQ=
-github.com/EraseMC/oomph/transferproxy v0.0.0-20261001191538-f12038b6c22f/go.mod h1:IEgtq20yogTTq+DuYCdRcXPeHXNv0Vm5CgSceFMvpqY=
+github.com/EraseMC/oomph/anticheat v0.0.0-20261001194342-f8a86ab5d3bf h1:q2U7y/mOHCbe08WlwayRhz596EB2+BobxBwYRTY5TPM=
+github.com/EraseMC/oomph/anticheat v0.0.0-20261001194342-f8a86ab5d3bf/go.mod h1:sJ03rvJk4ziZ6F3ECdc0IdwG4pcKMg0MD+/z/ufYFoU=
+github.com/EraseMC/oomph/transferproxy v0.0.0-20261001194342-f8a86ab5d3bf h1:W3XiMlfkeMrAApD0hdNh4VZKHm7HRBZB2qC/8RUYZD0=
+github.com/EraseMC/oomph/transferproxy v0.0.0-20261001194342-f8a86ab5d3bf/go.mod h1:IEgtq20yogTTq+DuYCdRcXPeHXNv0Vm5CgSceFMvpqY=
 github.com/brentp/intintmap v0.0.0-20251106190759-56907b1f8479 h1:UZbbt19ACBOFO+CiDQFjaEoPJkBhj7GNGtIq59WR6Os=
 github.com/brentp/intintmap v0.0.0-20251106190759-56907b1f8479/go.mod h1:TOk10ahXejq9wkEaym3KPRNeuR/h5Jx+s8QRWIa2oTM=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
