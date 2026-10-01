@@ -1,7 +1,7 @@
 github.com/EraseMC/dragonfly v0.0.0-20261001183901-0c580bde200e h1:sd71odCc0dqi8C+XO8jIgn+NyqTmIO6myZtY45elOJw=
 github.com/EraseMC/dragonfly v0.0.0-20261001183901-0c580bde200e/go.mod h1:edW4tJmnTBFEAsyq0i+jNANDQVdPHmdbqBQpkHVXhWw=
-github.com/EraseMC/gophertunnel v0.0.0-20261001202700-5224d0f358f4 h1:e1V6ewh85eWxD1NjFPxoKV4GZwbSxdKkIZHkn277hMU=
-github.com/EraseMC/gophertunnel v0.0.0-20261001202700-5224d0f358f4/go.mod h1:ZcY+NKGUQ4519TQOpeDrzYpoX8D0heL7J1oGjdzWlz8=
+github.com/EraseMC/gophertunnel v0.0.0-20261001215300-bc6a578fdf29 h1:8Ynt6YIc5UoiH9NUShbYtun8Rv/i1q2Sg3e305StlRo=
+github.com/EraseMC/gophertunnel v0.0.0-20261001215300-bc6a578fdf29/go.mod h1:ZcY+NKGUQ4519TQOpeDrzYpoX8D0heL7J1oGjdzWlz8=
 github.com/EraseMC/oomph/anticheat v0.0.0-20261001214728-5a0efd3eff9e h1:dEv/tnuF3g1ujr2LZVVqWfTOHS97D9eikcsjUakCEXw=
 github.com/EraseMC/oomph/anticheat v0.0.0-20261001214728-5a0efd3eff9e/go.mod h1:sJ03rvJk4ziZ6F3ECdc0IdwG4pcKMg0MD+/z/ufYFoU=
 github.com/EraseMC/oomph/transferproxy v0.0.0-20261001214728-5a0efd3eff9e h1:HCrJQNKwq7z6DdnVheAz/HIkk/YCXaIipNFsIW35H2o=

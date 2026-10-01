@@ -7,7 +7,7 @@ replace (
 	github.com/oomph-ac/oomph/anticheat => github.com/EraseMC/oomph/anticheat v0.0.0-20261001214728-5a0efd3eff9e
 	github.com/oomph-ac/oomph/transferproxy => github.com/EraseMC/oomph/transferproxy v0.0.0-20261001214728-5a0efd3eff9e
 	github.com/sandertv/go-raknet => github.com/oomph-ac/go-raknet v0.0.0-20260804171633-295d5444b424
-	github.com/sandertv/gophertunnel => github.com/EraseMC/gophertunnel v0.0.0-20261001202700-5224d0f358f4
+	github.com/sandertv/gophertunnel => github.com/EraseMC/gophertunnel v0.0.0-20261001215300-bc6a578fdf29
 )
 
 require (
