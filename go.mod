@@ -4,8 +4,8 @@ go 1.26.0
 
 replace (
 	github.com/df-mc/dragonfly => github.com/EraseMC/dragonfly v0.0.0-20261001183901-0c580bde200e
-	github.com/oomph-ac/oomph/anticheat => github.com/EraseMC/oomph/anticheat v0.0.0-20261001203301-3448dc7b246e
-	github.com/oomph-ac/oomph/transferproxy => github.com/EraseMC/oomph/transferproxy v0.0.0-20261001203301-3448dc7b246e
+	github.com/oomph-ac/oomph/anticheat => github.com/EraseMC/oomph/anticheat v0.0.0-20261001213712-18410dd3bff8
+	github.com/oomph-ac/oomph/transferproxy => github.com/EraseMC/oomph/transferproxy v0.0.0-20261001213712-18410dd3bff8
 	github.com/sandertv/go-raknet => github.com/oomph-ac/go-raknet v0.0.0-20260804171633-295d5444b424
 	github.com/sandertv/gophertunnel => github.com/EraseMC/gophertunnel v0.0.0-20261001202700-5224d0f358f4
 )
