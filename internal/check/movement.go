@@ -53,10 +53,13 @@ func (m *movement) Serverbound(p *player.Player, pk packet.Packet, at uint64) {
 			m.air += int(dt)
 		}
 		predicted := (m.vertical - 0.08) * 0.98
-		bad = m.air > 15 && vertical > predicted+0.09 && vertical > -0.3
-		bad = bad || m.air > 25 && vertical >= -0.02
-		if vertical > float64(p.State.Jump)+0.12 {
-			bad = true
+		// A missed ground sample must not turn successive vanilla jumps into
+		// one long flight. Accept the jump impulse, then require gravity again.
+		jump := vertical > 0 && math.Abs(vertical-float64(p.State.Jump)) < 0.035
+		bad = !ground && p.State.Flags&wire.StateCeiling == 0 && !jump && dt == 1 &&
+			vertical > predicted+0.04 && vertical > -0.3
+		if ground || jump || dt != 1 {
+			m.buffer = 0
 		}
 		m.vertical = vertical
 	}
@@ -67,7 +70,7 @@ func (m *movement) Serverbound(p *player.Player, pk packet.Packet, at uint64) {
 		return
 	}
 	m.buffer = min(m.buffer+1, 30)
-	if m.buffer < 10 || at-m.lastFlag < 1000 {
+	if m.buffer < 12 || at-m.lastFlag < 1000 {
 		return
 	}
 	m.lastFlag = at

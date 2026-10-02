@@ -6,18 +6,33 @@ Wire version 2 requires a matching Practice-New plugin and Aegis build.
 Keep TCP port 19140 private. The PHP bridge uses a nonblocking connection and
 rebuilds sidecar state after disconnects; the game continues if Aegis is unavailable.
 
-Keep `ERASE_AEGIS_PUNISH=false` during validation. Reach_A, KillAura_A, Speed_A
-and Fly_A additionally default to action `none` in the sidecar configuration.
+Keep `ERASE_AEGIS_PUNISH=false` during validation.
 Violation thresholds are evidence for review, not proof of cheating.
+
+With enforcement enabled, the default policy is:
+
+| Checks | Action |
+| --- | --- |
+| Reach_A, KillAura_A, Timer_A | Ban for 14 days |
+| Fly_A, Speed_A, BadPacket_A, Autoclicker_A | Kick |
+
+Ban duration is enforced by the Practice bridge, not encoded in the sidecar action.
+Other integrations must define their own duration. BadPacket_A has a threshold of
+1 VL; other checks use 10 VL. Movement and combat also require repeated evidence
+before increasing VL. No single reach sample causes a ban.
 
 ## Detection limits
 
-- Reach_A: repeated attacks beyond 3.35 blocks from input position to confirmed
-  target bounds. Uses acknowledgment history and interpolation envelopes.
+- Reach_A: repeated attacks with nearest hitbox distance above 3.05 blocks, or
+  non-touch ray distance above 3.01 after a 0.1-block hitbox expansion. Uses
+  acknowledgment history, interpolation envelopes and adjacent attacker positions.
+  Attacks are evaluated on the following input to accommodate packet ordering.
 - KillAura_A: repeated attacks missing recent look-direction rays. Touch input
   is excluded because tap-to-attack does not require crosshair aim.
 - Speed_A: sustained horizontal movement outside a conservative speed envelope.
-- Fly_A: sustained hovering or upward movement inconsistent with basic gravity.
+- Fly_A: consecutive single-tick vertical changes inconsistent with gravity.
+  Jump impulses reset evidence even if a ground sample was missed. Gaps reset
+  prediction; ceilings and partial collision shapes are excluded.
 
 These checks do not implement full movement prediction or wall obstruction checks.
 They require fresh state and acknowledgments with RTT <= 500ms. Exact timestamp

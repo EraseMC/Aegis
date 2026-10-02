@@ -11,9 +11,10 @@ Aegis returns violations and configured actions; the plugin handles alerts and e
 Timer, invalid packets, autoclicker, reach, aim consistency, speed and flight.
 Autoclickers up to 20 CPS are allowed on all input devices.
 
-Combat and movement checks are experimental and default to alert-only mode.
+Checks require validation against the server's movement and combat rules.
 They require acknowledged client state and skip stale or lagged observations.
 Movement detection uses conservative bounds, not a full physics simulation.
+Enforcement is disabled by the Practice bridge unless `ERASE_AEGIS_PUNISH=true`.
 
 ## Build
 

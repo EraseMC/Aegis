@@ -38,11 +38,11 @@ func TestCombatLagAndReach(t *testing.T) {
 		check         string
 		want          bool
 	}{
-		{"legit", 3, 0, ReachA, false}, {"reach", 4.5, 0, ReachA, true}, {"looking", 2.5, 0, KillAuraA, false}, {"backwards", 2.5, 180, KillAuraA, true},
+		{"legit", 3.3, 0, ReachA, false}, {"center315", 3.15, 0, ReachA, false}, {"reach315", 3.45, 0, ReachA, true}, {"reach320", 3.5, 0, ReachA, true}, {"reach", 4.5, 0, ReachA, true}, {"looking", 2.5, 0, KillAuraA, false}, {"backwards", 2.5, 180, KillAuraA, true},
 	} {
 		t.Run(scenario.name, func(t *testing.T) {
 			p, r := combatPlayer(scenario.distance, scenario.yaw)
-			for tick := uint64(1); tick <= 100; tick++ {
+			for tick := uint64(1); tick <= 450; tick++ {
 				at := 10050 + tick*50
 				ready(p, at, true)
 				p.Serverbound(&packet.PlayerAuthInput{Tick: tick, Yaw: scenario.yaw, Position: [3]float32{0, 1.621, 0}, InputData: protocol.NewInputFlags(packet.InputFlagCount)}, at)
@@ -50,6 +50,12 @@ func TestCombatLagAndReach(t *testing.T) {
 			}
 			if (r.flags[scenario.check] > 0) != scenario.want {
 				t.Fatalf("flags %v", r.flags)
+			}
+			if scenario.want && r.punished[scenario.check] != wire.ActionBan {
+				t.Fatalf("expected ban after persistent combat evidence, got %v", r.punished)
+			}
+			if !scenario.want && len(r.punished) != 0 {
+				t.Fatalf("legitimate combat punished: %v", r.punished)
 			}
 		})
 	}
@@ -59,6 +65,43 @@ func TestCombatLagAndReach(t *testing.T) {
 	}
 	if r.flags[ReachA] > 0 {
 		t.Fatal("stale/lagged evidence was used")
+	}
+}
+
+func TestJumpWithUnsampledLandings(t *testing.T) {
+	for _, jump := range []float32{0.42, 0.62, 0.82} {
+		p, r := newPlayer(player.InputModeMouse)
+		y, velocity := float32(0), float32(0)
+		for tick := uint64(1); tick <= 1000; tick++ {
+			if y <= 0 {
+				y = 0
+				velocity = jump
+			}
+			y += velocity
+			velocity = (velocity - .08) * .98
+			at := 10000 + tick*50
+			// Emulate 4Hz terrain sampling which never catches the short landing.
+			ready(p, at, false)
+			p.State.Jump = jump
+			p.State.Position[1] = max(0, y)
+			p.Serverbound(&packet.PlayerAuthInput{Tick: tick, Position: [3]float32{float32(tick) * .34, max(0, y) + 1.621, 0}, InputData: protocol.NewInputFlags(packet.InputFlagCount)}, at)
+		}
+		if r.flags[FlyA] > 0 {
+			t.Fatalf("jump=%v flags=%v", jump, r.flags)
+		}
+	}
+}
+
+func TestCombatAttackBeforeRotation(t *testing.T) {
+	p, r := combatPlayer(2.5, 180)
+	for tick := uint64(1); tick <= 100; tick++ {
+		at := 10050 + tick*50
+		ready(p, at, true)
+		attack(p, at)
+		p.Serverbound(&packet.PlayerAuthInput{Tick: tick, Yaw: 0, Position: [3]float32{0, 1.621, 0}, InputData: protocol.NewInputFlags(packet.InputFlagCount)}, at)
+	}
+	if r.flags[KillAuraA] > 0 || r.flags[ReachA] > 0 {
+		t.Fatal(r.flags)
 	}
 }
 

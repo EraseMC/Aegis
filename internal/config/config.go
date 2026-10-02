@@ -37,13 +37,13 @@ func Default() Config {
 	return Config{
 		Listen: "0.0.0.0:19140",
 		Checks: map[string]Check{
-			"Timer_A":       {Enabled: true, Max: 10, Action: "kick"},
+			"Timer_A":       {Enabled: true, Max: 10, Action: "ban"},
 			"Autoclicker_A": {Enabled: true, Max: 10, Action: "kick"},
 			"BadPacket_A":   {Enabled: true, Max: 1, Action: "kick"},
-			"Reach_A":       {Enabled: true, Max: 10, Action: "none"},
-			"KillAura_A":    {Enabled: true, Max: 10, Action: "none"},
-			"Speed_A":       {Enabled: true, Max: 10, Action: "none"},
-			"Fly_A":         {Enabled: true, Max: 10, Action: "none"},
+			"Reach_A":       {Enabled: true, Max: 10, Action: "ban"},
+			"KillAura_A":    {Enabled: true, Max: 10, Action: "ban"},
+			"Speed_A":       {Enabled: true, Max: 10, Action: "kick"},
+			"Fly_A":         {Enabled: true, Max: 10, Action: "kick"},
 		},
 	}
 }

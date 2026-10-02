@@ -30,11 +30,16 @@ func (b Box) Distance(pos [3]float32) float64 {
 }
 
 func (b Box) Ray(pos, direction [3]float32, margin float32) bool {
+	_, hit := b.RayDistance(pos, direction, margin)
+	return hit
+}
+
+func (b Box) RayDistance(pos, direction [3]float32, margin float32) (float64, bool) {
 	lo, hi := float64(0), float64(8)
 	for i, v := range direction {
 		if math.Abs(float64(v)) < 1e-6 {
 			if pos[i] < b[i]-margin || pos[i] > b[i+3]+margin {
-				return false
+				return 0, false
 			}
 			continue
 		}
@@ -45,10 +50,10 @@ func (b Box) Ray(pos, direction [3]float32, margin float32) bool {
 		lo = max(lo, a)
 		hi = min(hi, c)
 		if hi < lo {
-			return false
+			return 0, false
 		}
 	}
-	return true
+	return lo, true
 }
 
 type sample struct {
@@ -166,14 +171,35 @@ func (v *View) Synced(at uint64) bool {
 }
 
 func (v *View) Distance(id, at uint64, pos [3]float32, directions [][3]float32) (float64, bool, bool) {
+	e := v.Measure(id, at, [][3]float32{pos}, directions)
+	return e.Raw, e.AimHit, e.Known
+}
+
+type CombatEvidence struct {
+	Raw, Ray      float64
+	AimHit, Known bool
+}
+
+func (v *View) Measure(id, at uint64, positions, directions [][3]float32) CombatEvidence {
 	if !v.Synced(at) {
-		return 0, false, false
+		return CombatEvidence{}
 	}
 	t := v.Targets[id]
 	if t == nil || t.Removed || t.Count == 0 || at < t.Last {
-		return 0, false, false
+		return CombatEvidence{}
 	}
-	distance, hit := math.Inf(1), false
+	e := CombatEvidence{Raw: math.Inf(1), Ray: math.Inf(1)}
+	measure := func(box Box) {
+		for _, pos := range positions {
+			e.Raw = min(e.Raw, box.Distance(pos))
+			for _, d := range directions {
+				if ray, hit := box.RayDistance(pos, d, 0.1); hit {
+					e.Ray = min(e.Ray, ray)
+				}
+				e.AimHit = e.AimHit || box.Ray(pos, d, 0.35)
+			}
+		}
+	}
 	var previous Box
 	for i := 0; i < t.Count; i++ {
 		s := t.Samples[(t.Next-1-i+historySize)%historySize]
@@ -189,29 +215,21 @@ func (v *View) Distance(id, at uint64, pos [3]float32, directions [][3]float32) 
 			}
 		}
 		previous = s.Box
-		distance = min(distance, box.Distance(pos))
-		for _, d := range directions {
-			hit = hit || box.Ray(pos, d, 0.35)
-		}
+		measure(box)
 	}
 	// Unacknowledged moves enlarge the acceptable envelope but never authorize a new entity.
 	for _, m := range v.markers {
 		for _, u := range m.Updates {
 			if u.Target == id && u.Kind == wire.EntityUpdate {
-				distance = min(distance, Box(u.Box).Distance(pos))
-				for _, d := range directions {
-					hit = hit || Box(u.Box).Ray(pos, d, 0.35)
-				}
+				measure(Box(u.Box))
 			}
 		}
 	}
 	for _, u := range v.pending {
 		if u.Target == id && u.Kind == wire.EntityUpdate {
-			distance = min(distance, Box(u.Box).Distance(pos))
-			for _, d := range directions {
-				hit = hit || Box(u.Box).Ray(pos, d, 0.35)
-			}
+			measure(Box(u.Box))
 		}
 	}
-	return distance, hit, !math.IsInf(distance, 1)
+	e.Known = !math.IsInf(e.Raw, 1)
+	return e
 }

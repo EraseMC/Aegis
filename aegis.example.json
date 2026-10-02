@@ -4,10 +4,10 @@
 	"checks": {
 		"Autoclicker_A": {"enabled": true, "max": 10, "action": "kick"},
 		"BadPacket_A": {"enabled": true, "max": 1, "action": "kick"},
-		"Timer_A": {"enabled": true, "max": 10, "action": "kick"},
-		"Reach_A": {"enabled": true, "max": 10, "action": "none"},
-		"KillAura_A": {"enabled": true, "max": 10, "action": "none"},
-		"Speed_A": {"enabled": true, "max": 10, "action": "none"},
-		"Fly_A": {"enabled": true, "max": 10, "action": "none"}
+		"Timer_A": {"enabled": true, "max": 10, "action": "ban"},
+		"Reach_A": {"enabled": true, "max": 10, "action": "ban"},
+		"KillAura_A": {"enabled": true, "max": 10, "action": "ban"},
+		"Speed_A": {"enabled": true, "max": 10, "action": "kick"},
+		"Fly_A": {"enabled": true, "max": 10, "action": "kick"}
 	}
 }

@@ -35,6 +35,7 @@ type Player struct {
 	View                          View
 	State                         wire.State
 	Position                      [3]float32
+	PreviousPosition              [3]float32
 	Directions                    [4][3]float32
 	DirectionCount, DirectionNext int
 	GraceUntil                    uint64
@@ -71,6 +72,7 @@ func (p *Player) Serverbound(pk packet.Packet, at uint64) {
 	}
 	if input, ok := pk.(*packet.PlayerAuthInput); ok {
 		p.InputMode = input.InputMode
+		p.PreviousPosition = p.Position
 		p.Position = [3]float32(input.Position)
 		p.Directions[p.DirectionNext] = Direction(input.Yaw, input.Pitch)
 		p.DirectionNext = (p.DirectionNext + 1) % len(p.Directions)
