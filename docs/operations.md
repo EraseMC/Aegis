@@ -20,9 +20,12 @@ Violation thresholds are evidence for review, not proof of cheating.
 - Fly_A: sustained hovering or upward movement inconsistent with basic gravity.
 
 These checks do not implement full movement prediction or wall obstruction checks.
-They require fresh state and acknowledgments with RTT <= 500ms. Flight, special
-terrain, low TPS, death and frozen movement are excluded. Knockback and teleports
-receive a two-second grace period; nearby block changes receive a shorter grace.
+They require fresh state and acknowledgments with RTT <= 500ms. Exact timestamp
+unit conversions (x1000/x1000000) are matched against outstanding markers only.
+Flight, low TPS, death and frozen movement are excluded. Movement additionally
+excludes special terrain and receives a two-second knockback grace; nearby block
+changes receive a shorter grace. Combat remains active during knockback. Teleports
+reset history and give both check groups a two-second grace.
 
 ## Resource limits
 
@@ -42,7 +45,8 @@ Practice-New's Compose configuration limits Aegis to 0.5 CPU and 192MiB memory,
 with `GOMEMLIMIT=144MiB`. Builds run Go tests and compilation with one worker.
 
 Status logs every 30 seconds include online sessions, acknowledged sessions,
-average RTT and input count. `synced` indicates acknowledgment, not check eligibility.
+combat/movement eligibility, average RTT and input count. `synced` indicates
+acknowledgment; `combat_ready` and `movement_ready` indicate current eligibility.
 
 ## Validation and deployment
 

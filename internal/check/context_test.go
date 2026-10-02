@@ -62,6 +62,29 @@ func TestCombatLagAndReach(t *testing.T) {
 	}
 }
 
+func TestCombatDuringKnockback(t *testing.T) {
+	p, r := combatPlayer(4.5, 0)
+	for tick := uint64(1); tick <= 100; tick++ {
+		at := 10050 + tick*50
+		ready(p, at, true)
+		p.State.Flags |= wire.StateSpecial
+		p.Observe(wire.Observation{Target: p.Session, Kind: wire.Velocity, Time: at})
+		p.Serverbound(&packet.PlayerAuthInput{Tick: tick, Position: [3]float32{0, 1.621, 0}, InputMode: player.InputModeMouse, InputData: protocol.NewInputFlags(packet.InputFlagCount)}, at)
+		attack(p, at)
+		if p.Ready(at) {
+			t.Fatal("movement lost knockback grace")
+		}
+	}
+	if r.flags[ReachA] == 0 {
+		t.Fatal("knockback disabled reach detection throughout combat")
+	}
+	p.Observe(wire.Observation{Target: p.Session, Kind: wire.Teleport, Time: 16000})
+	ready(p, 16050, true)
+	if p.CombatReady(16050) {
+		t.Fatal("combat lost teleport grace")
+	}
+}
+
 func TestMovementAndExemptions(t *testing.T) {
 	for _, scenario := range []struct {
 		name               string

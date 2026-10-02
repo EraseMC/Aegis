@@ -1,9 +1,38 @@
 package player
 
 import (
+	"fmt"
 	"github.com/EraseMC/Aegis/internal/wire"
 	"testing"
 )
+
+func TestClientTimestampUnits(t *testing.T) {
+	const sent int64 = 268440052000
+	for _, scale := range []int64{1, 1000, 1000000} {
+		t.Run(fmt.Sprint(scale), func(t *testing.T) {
+			v := NewView()
+			v.Observe(wire.Observation{Target: 2, Box: [6]float32{0, 0, 2, 1, 2, 3}})
+			v.Mark(sent, 10000)
+			if v.Ack(sent*scale+1, 10050) || v.Ack(-sent*scale, 10050) {
+				t.Fatal("accepted altered timestamp")
+			}
+			if !v.Ack(sent*scale, 10050) || !v.Synced(10050) || v.RTT != 50 {
+				t.Fatal("real-client acknowledgment was not synchronized")
+			}
+			if _, _, known := v.Distance(2, 10050, [3]float32{}, nil); !known {
+				t.Fatal("acknowledged target missing")
+			}
+			if v.Ack(sent*scale, 10060) {
+				t.Fatal("accepted replay")
+			}
+		})
+	}
+	v := NewView()
+	v.Mark(sent, 10000)
+	if v.Ack(sent*1000000, 12001) {
+		t.Fatal("accepted expired converted acknowledgment")
+	}
+}
 
 func TestConfirmationAndBounds(t *testing.T) {
 	v := NewView()

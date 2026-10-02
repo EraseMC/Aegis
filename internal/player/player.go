@@ -38,6 +38,7 @@ type Player struct {
 	Directions                    [4][3]float32
 	DirectionCount, DirectionNext int
 	GraceUntil                    uint64
+	CombatGraceUntil              uint64
 	LastInput                     uint64
 
 	checks   []Check
@@ -87,6 +88,7 @@ func (p *Player) Serverbound(pk packet.Packet, at uint64) {
 func (p *Player) Observe(u wire.Observation) {
 	if u.Target == p.Session && u.Kind == wire.Teleport {
 		p.View = NewView()
+		p.CombatGraceUntil = max(p.CombatGraceUntil, u.Time+2000)
 	}
 	if u.Target == p.Session && (u.Kind == wire.Teleport || u.Kind == wire.Velocity) {
 		p.GraceUntil = max(p.GraceUntil, u.Time+2000)
@@ -102,6 +104,12 @@ func (p *Player) Ready(at uint64) bool {
 	return p.State.Time > 0 && at >= p.State.Time && at-p.State.Time <= 750 && at >= p.GraceUntil &&
 		p.State.Flags&(wire.StateFlying|wire.StateSpecial|wire.StateLagging|wire.StateDead|wire.StateFrozen) == 0 &&
 		p.View.Synced(at)
+}
+
+func (p *Player) CombatReady(at uint64) bool {
+	// Knockback and special terrain invalidate movement prediction, not attack geometry.
+	return p.State.Time > 0 && at >= p.State.Time && at-p.State.Time <= 750 && at >= p.CombatGraceUntil &&
+		p.State.Flags&(wire.StateFlying|wire.StateLagging|wire.StateDead|wire.StateFrozen) == 0 && p.View.Synced(at)
 }
 
 func (p *Player) Flag(check string, violations, max float64, data string) {

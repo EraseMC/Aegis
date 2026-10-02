@@ -28,7 +28,7 @@ func (c *combat) Serverbound(p *player.Player, pk packet.Packet, at uint64) {
 		return
 	}
 	tx, ok := pk.(*packet.InventoryTransaction)
-	if !ok || !p.Ready(at) || at < p.LastInput || at-p.LastInput > 250 || p.DirectionCount == 0 {
+	if !ok || !p.CombatReady(at) || at < p.LastInput || at-p.LastInput > 250 || p.DirectionCount == 0 {
 		return
 	}
 	attack, ok := tx.TransactionData.(*protocol.UseItemOnEntityTransactionData)

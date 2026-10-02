@@ -104,9 +104,19 @@ func (v *View) Mark(id int64, at uint64) {
 
 func (v *View) Ack(id int64, at uint64) bool {
 	index := -1
-	for i, m := range v.markers {
-		if m.ID == id {
-			index = i
+	// Bedrock clients may return this timestamp in microseconds/nanoseconds.
+	// Match only exact conversions of an outstanding marker, never rounded values.
+	for _, scale := range [...]int64{1, 1000, 1000000} {
+		if id <= 0 || id%scale != 0 {
+			continue
+		}
+		for i, m := range v.markers {
+			if m.ID == id/scale {
+				index = i
+				break
+			}
+		}
+		if index >= 0 {
 			break
 		}
 	}

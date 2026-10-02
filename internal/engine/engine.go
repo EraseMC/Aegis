@@ -142,8 +142,15 @@ func (e *Engine) Handle(t wire.Type, body []byte) error {
 		}
 		if tick.Time >= e.nextStats {
 			synced := 0
+			combatReady, movementReady := 0, 0
 			var rtt uint64
 			for _, p := range e.players {
+				if p.CombatReady(tick.Time) {
+					combatReady++
+				}
+				if p.Ready(tick.Time) {
+					movementReady++
+				}
 				if p.View.LastAck > 0 && tick.Time >= p.View.LastAck && tick.Time-p.View.LastAck <= 1000 {
 					synced++
 					rtt += p.View.RTT
@@ -152,7 +159,7 @@ func (e *Engine) Handle(t wire.Type, body []byte) error {
 			if synced > 0 {
 				rtt /= uint64(synced)
 			}
-			e.log.Info("status", "players", len(e.players), "synced", synced, "rtt_ms", rtt, "packets", e.packets)
+			e.log.Info("status", "players", len(e.players), "synced", synced, "combat_ready", combatReady, "movement_ready", movementReady, "rtt_ms", rtt, "packets", e.packets)
 			e.nextStats = tick.Time + 30000
 		}
 	default:
