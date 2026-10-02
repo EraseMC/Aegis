@@ -8,5 +8,5 @@ RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o /aegis ./cmd/aegis
 FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /data
 COPY --from=build /aegis /usr/local/bin/aegis
-EXPOSE 19132/udp
-ENTRYPOINT ["/usr/local/bin/aegis"]
+EXPOSE 19140/tcp
+ENTRYPOINT ["/usr/local/bin/aegis", "-config", "/data/aegis.json"]
