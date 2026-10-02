@@ -75,9 +75,9 @@ func (s *Server) handle(ctx context.Context, conn net.Conn) {
 	stop := context.AfterFunc(ctx, func() { _ = conn.Close() })
 	defer stop()
 	defer func() {
+		_ = conn.Close()
 		close(out)
 		<-done
-		_ = conn.Close()
 		log.Info("server disconnected", "players", eng.Players())
 	}()
 
@@ -104,17 +104,18 @@ func (s *Server) handle(ctx context.Context, conn net.Conn) {
 
 func write(conn net.Conn, out <-chan []byte, done chan<- struct{}, log *slog.Logger) {
 	defer close(done)
+	defer conn.Close()
 	writer := bufio.NewWriter(conn)
 	for frame := range out {
+		_ = conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
 		if _, err := writer.Write(frame); err != nil {
 			log.Warn("write failed", "err", err)
-			for range out {
-			}
 			return
 		}
 		if len(out) == 0 {
 			if err := writer.Flush(); err != nil {
 				log.Warn("flush failed", "err", err)
+				return
 			}
 		}
 	}
