@@ -69,15 +69,23 @@ func TestAutoclicker(t *testing.T) {
 	if r.flags[AutoclickerA] != 0 {
 		t.Fatalf("14 cps flagged %d times", r.flags[AutoclickerA])
 	}
-	p, r = newPlayer(player.InputModeTouch)
-	play(p, 30, 1.0, 0, 19)
-	if r.flags[AutoclickerA] == 0 {
-		t.Fatal("19 cps on touch was not flagged")
-	}
 	p, r = newPlayer(player.InputModeMouse)
 	play(p, 30, 1.0, 0, 28)
 	if r.flags[AutoclickerA] == 0 {
 		t.Fatal("28 cps on mouse was not flagged")
+	}
+}
+
+func TestAllowedCPSBoundary(t *testing.T) {
+	for _, input := range []uint32{player.InputModeMouse, player.InputModeTouch, packet.InputModeGamePad} {
+		for _, cps := range []int{16, 19, 20, 21, 28} {
+			p, r := newPlayer(input)
+			play(p, 60, 1.0, 0, cps)
+			flagged := r.flags[AutoclickerA] > 0
+			if flagged != (cps > 20) {
+				t.Errorf("input=%d cps=%d flagged=%v, limit must be inclusive at 20", input, cps, flagged)
+			}
+		}
 	}
 }
 

@@ -13,8 +13,7 @@ const AutoclickerA = "Autoclicker_A"
 
 const (
 	clickWindow = 20
-	limitMouse  = 20
-	limitTouch  = 16
+	limitCPS    = 20
 	clickBuffer = 3
 )
 
@@ -71,18 +70,14 @@ func (a *autoclicker) evaluate(p *player.Player, tick uint64) {
 	}
 	a.clicks = kept
 
-	limit := limitMouse
-	if p.Touch() {
-		limit = limitTouch
-	}
 	cps := len(a.clicks)
-	if cps <= limit {
+	if cps <= limitCPS {
 		a.buffer = max(0, a.buffer-1)
 		a.pass(0.05)
 		return
 	}
 	a.buffer++
 	if a.buffer >= clickBuffer {
-		a.fail(p, 1, fmt.Sprintf("cps=%d limit=%d", cps, limit))
+		a.fail(p, 1, fmt.Sprintf("cps=%d limit=%d", cps, limitCPS))
 	}
 }
