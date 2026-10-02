@@ -14,23 +14,27 @@ import (
 )
 
 type Engine struct {
-	cfg      config.Config
-	log      *slog.Logger
-	send     func([]byte)
-	shield   int32
-	players  map[uint64]*player.Player
-	fromUser packet.Pool
-	failures map[uint32]int
+	cfg        config.Config
+	log        *slog.Logger
+	send       func([]byte)
+	shield     int32
+	players    map[uint64]*player.Player
+	fromUser   packet.Pool
+	fromServer packet.Pool
+	failures   map[uint32]int
+	packets    uint64
+	nextStats  uint64
 }
 
 func New(cfg config.Config, log *slog.Logger, send func([]byte)) *Engine {
 	return &Engine{
-		cfg:      cfg,
-		log:      log,
-		send:     send,
-		players:  make(map[uint64]*player.Player),
-		fromUser: packet.NewClientPool(),
-		failures: make(map[uint32]int),
+		cfg:        cfg,
+		log:        log,
+		send:       send,
+		players:    make(map[uint64]*player.Player),
+		fromUser:   packet.NewClientPool(),
+		fromServer: packet.NewServerPool(),
+		failures:   make(map[uint32]int),
 	}
 }
 
@@ -39,6 +43,9 @@ func (e *Engine) Players() int {
 }
 
 func (e *Engine) Handle(t wire.Type, body []byte) error {
+	if t == wire.TypeInput || t == wire.TypeAttack || t == wire.TypeSwing || t == wire.TypeServerbound {
+		e.packets++
+	}
 	switch t {
 	case wire.TypeHello:
 		hello, err := wire.DecodeHello(body)
@@ -70,7 +77,84 @@ func (e *Engine) Handle(t wire.Type, body []byte) error {
 			return err
 		}
 		e.serverbound(pk)
-	case wire.TypeClientbound, wire.TypeTick:
+	case wire.TypeInput:
+		in, err := wire.DecodeInput(body)
+		if err != nil {
+			return err
+		}
+		if p := e.players[in.Session]; p != nil {
+			flags := protocol.NewInputFlags(packet.InputFlagCount)
+			if in.Missed {
+				flags.Set(packet.InputFlagMissedSwing)
+			}
+			p.Serverbound(&packet.PlayerAuthInput{Tick: in.Tick, Position: in.Position, Pitch: in.Pitch, Yaw: in.Yaw, HeadYaw: in.HeadYaw, InputMode: in.Mode, InputData: flags}, in.Time)
+		}
+	case wire.TypeAttack:
+		in, err := wire.DecodeAttack(body)
+		if err != nil {
+			return err
+		}
+		if p := e.players[in.Session]; p != nil {
+			p.Serverbound(&packet.InventoryTransaction{TransactionData: &protocol.UseItemOnEntityTransactionData{TargetEntityRuntimeID: in.Target, ActionType: protocol.UseItemOnEntityActionAttack}}, in.Time)
+		}
+	case wire.TypeSwing:
+		in, err := wire.DecodeSwing(body)
+		if err != nil {
+			return err
+		}
+		if p := e.players[in.Session]; p != nil {
+			p.Serverbound(&packet.LevelSoundEvent{SoundType: packet.SoundEventAttackNoDamage}, in.Time)
+		}
+	case wire.TypeObservation:
+		u, err := wire.DecodeObservation(body)
+		if err != nil {
+			return err
+		}
+		if p := e.players[u.Session]; p != nil {
+			p.Observe(u)
+		}
+	case wire.TypeState:
+		s, err := wire.DecodeState(body)
+		if err != nil {
+			return err
+		}
+		if p := e.players[s.Session]; p != nil {
+			p.State = s
+		}
+	case wire.TypeClientbound:
+		f, err := wire.DecodePacket(body)
+		if err != nil {
+			return err
+		}
+		if p := e.players[f.Session]; p != nil {
+			pk, _, err := e.decode(e.fromServer, f.Payload)
+			if err != nil {
+				return err
+			}
+			if marker, ok := pk.(*packet.NetworkStackLatency); ok && marker.NeedsResponse {
+				p.View.Mark(marker.Timestamp, f.Time)
+			}
+		}
+	case wire.TypeTick:
+		tick, err := wire.DecodeTick(body)
+		if err != nil {
+			return err
+		}
+		if tick.Time >= e.nextStats {
+			synced := 0
+			var rtt uint64
+			for _, p := range e.players {
+				if p.View.LastAck > 0 && tick.Time >= p.View.LastAck && tick.Time-p.View.LastAck <= 1000 {
+					synced++
+					rtt += p.View.RTT
+				}
+			}
+			if synced > 0 {
+				rtt /= uint64(synced)
+			}
+			e.log.Info("status", "players", len(e.players), "synced", synced, "rtt_ms", rtt, "packets", e.packets)
+			e.nextStats = tick.Time + 30000
+		}
 	default:
 		return fmt.Errorf("unknown frame type 0x%02x", uint8(t))
 	}

@@ -8,7 +8,7 @@ import (
 	"math"
 )
 
-const Version uint16 = 1
+const Version uint16 = 2
 
 const MaxFrameSize = 8 << 20
 
@@ -21,6 +21,11 @@ const (
 	TypeServerbound Type = 0x04
 	TypeClientbound Type = 0x05
 	TypeTick        Type = 0x06
+	TypeObservation Type = 0x07
+	TypeState       Type = 0x08
+	TypeInput       Type = 0x09
+	TypeAttack      Type = 0x0a
+	TypeSwing       Type = 0x0b
 
 	TypeWelcome Type = 0x81
 	TypeFlag    Type = 0x82
@@ -142,6 +147,8 @@ func (r *Reader) U64() uint64 {
 	}
 	return 0
 }
+
+func (r *Reader) F32() float32 { return math.Float32frombits(r.U32()) }
 
 func (r *Reader) String() string {
 	return string(r.take(int(r.U16())))

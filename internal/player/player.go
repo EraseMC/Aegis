@@ -30,8 +30,15 @@ type Player struct {
 	DeviceOS  int32
 	InputMode uint32
 
-	ClientTick uint64
-	Punished   bool
+	ClientTick                    uint64
+	Punished                      bool
+	View                          View
+	State                         wire.State
+	Position                      [3]float32
+	Directions                    [4][3]float32
+	DirectionCount, DirectionNext int
+	GraceUntil                    uint64
+	LastInput                     uint64
 
 	checks   []Check
 	reporter Reporter
@@ -47,6 +54,7 @@ func New(join wire.Join, reporter Reporter, checks []Check) *Player {
 		DeviceOS:  join.DeviceOS,
 		InputMode: join.InputMode,
 		checks:    checks,
+		View:      NewView(),
 		reporter:  reporter,
 	}
 }
@@ -56,15 +64,44 @@ func (p *Player) Touch() bool {
 }
 
 func (p *Player) Serverbound(pk packet.Packet, at uint64) {
+	if ack, ok := pk.(*packet.NetworkStackLatency); ok {
+		p.View.Ack(ack.Timestamp, at)
+		return
+	}
 	if input, ok := pk.(*packet.PlayerAuthInput); ok {
 		p.InputMode = input.InputMode
+		p.Position = [3]float32(input.Position)
+		p.Directions[p.DirectionNext] = Direction(input.Yaw, input.Pitch)
+		p.DirectionNext = (p.DirectionNext + 1) % len(p.Directions)
+		p.DirectionCount = min(p.DirectionCount+1, len(p.Directions))
 	}
 	for _, c := range p.checks {
 		c.Serverbound(p, pk, at)
 	}
 	if input, ok := pk.(*packet.PlayerAuthInput); ok {
 		p.ClientTick = input.Tick
+		p.LastInput = at
 	}
+}
+
+func (p *Player) Observe(u wire.Observation) {
+	if u.Target == p.Session && u.Kind == wire.Teleport {
+		p.View = NewView()
+	}
+	if u.Target == p.Session && (u.Kind == wire.Teleport || u.Kind == wire.Velocity) {
+		p.GraceUntil = max(p.GraceUntil, u.Time+2000)
+	}
+	if u.Kind == wire.BlockChange {
+		p.GraceUntil = max(p.GraceUntil, u.Time+500)
+		return
+	}
+	p.View.Observe(u)
+}
+
+func (p *Player) Ready(at uint64) bool {
+	return p.State.Time > 0 && at >= p.State.Time && at-p.State.Time <= 750 && at >= p.GraceUntil &&
+		p.State.Flags&(wire.StateFlying|wire.StateSpecial|wire.StateLagging|wire.StateDead|wire.StateFrozen) == 0 &&
+		p.View.Synced(at)
 }
 
 func (p *Player) Flag(check string, violations, max float64, data string) {

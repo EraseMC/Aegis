@@ -40,6 +40,10 @@ func Default() Config {
 			"Timer_A":       {Enabled: true, Max: 10, Action: "kick"},
 			"Autoclicker_A": {Enabled: true, Max: 10, Action: "kick"},
 			"BadPacket_A":   {Enabled: true, Max: 1, Action: "kick"},
+			"Reach_A":       {Enabled: true, Max: 10, Action: "none"},
+			"KillAura_A":    {Enabled: true, Max: 10, Action: "none"},
+			"Speed_A":       {Enabled: true, Max: 10, Action: "none"},
+			"Fly_A":         {Enabled: true, Max: 10, Action: "none"},
 		},
 	}
 }
@@ -55,6 +59,9 @@ func Load(path string) (Config, error) {
 	}
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return cfg, fmt.Errorf("parse %s: %w", path, err)
+	}
+	if cfg.Checks == nil {
+		cfg.Checks = make(map[string]Check)
 	}
 	for name, check := range Default().Checks {
 		if _, ok := cfg.Checks[name]; !ok {
