@@ -42,7 +42,6 @@ func (c *combat) Serverbound(p *player.Player, pk packet.Packet, at uint64) {
 	}
 	count := c.count
 	c.count = 0
-	// Attack packets may precede the input carrying the attack's look direction.
 	if !p.CombatReady(at) || (c.aim && p.Touch()) || p.DirectionCount == 0 || p.LastInput == 0 || at < p.LastInput || at-p.LastInput > 250 {
 		c.buffer = 0
 		return
@@ -56,15 +55,17 @@ func (c *combat) Serverbound(p *player.Player, pk packet.Packet, at uint64) {
 }
 
 func (c *combat) evaluate(p *player.Player, target, at uint64, positions [][3]float32) {
-	e := p.View.Measure(target, at, positions, p.Directions[:p.DirectionCount])
+	directions := [2][3]float32{
+		p.Directions[(p.DirectionNext+len(p.Directions)-1)%len(p.Directions)],
+		p.Directions[(p.DirectionNext+len(p.Directions)-2)%len(p.Directions)],
+	}
+	e := p.View.Measure(target, at, positions, directions[:min(p.DirectionCount, len(directions))])
 	if !e.Known {
 		return
 	}
-	// The raw distance is a conservative lower bound. A ray is more precise
-	// for non-touch attacks; its 0.1-block box expansion covers hitbox tolerance.
-	bad := e.Raw > 3.05 || (!p.Touch() && !math.IsInf(e.Ray, 1) && e.Ray > 3.01)
+	bad := e.Raw > 3.035 || (!p.Touch() && !math.IsInf(e.Ray, 1) && e.Ray > 3.025)
 	if c.aim {
-		bad = e.Raw > 0.8 && e.Raw <= 3.05 && !e.AimHit
+		bad = e.Raw > 0.8 && e.Raw <= 3.035 && !e.AimHit
 	}
 	if !bad {
 		c.buffer = max(0, c.buffer-1)
@@ -72,7 +73,7 @@ func (c *combat) evaluate(p *player.Player, target, at uint64, positions [][3]fl
 		return
 	}
 	c.buffer = min(c.buffer+1, 10)
-	if c.buffer < 5 || at-c.lastFlag < 1000 {
+	if c.buffer < 3 || at-c.lastFlag < 500 {
 		return
 	}
 	c.lastFlag = at

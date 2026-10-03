@@ -44,6 +44,10 @@ func Default() Config {
 			"KillAura_A":    {Enabled: true, Max: 10, Action: "ban"},
 			"Speed_A":       {Enabled: true, Max: 10, Action: "kick"},
 			"Fly_A":         {Enabled: true, Max: 10, Action: "kick"},
+			"KillAura_B":    {Enabled: true, Max: 10, Action: "none"},
+			"AutoCrit_A":    {Enabled: true, Max: 10, Action: "none"},
+			"Velocity_A":    {Enabled: true, Max: 10, Action: "none"},
+			"NoJumpDelay_A": {Enabled: true, Max: 10, Action: "none"},
 		},
 	}
 }

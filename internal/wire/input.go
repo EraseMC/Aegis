@@ -1,11 +1,23 @@
 package wire
 
+const (
+	ControlJump uint8 = 1 << iota
+	ControlJumpStart
+	ControlSprint
+	ControlHorizontalCollision
+	ControlVerticalCollision
+	ControlJumpPressed
+	ControlSneak
+	ControlKnown
+)
+
 type Input struct {
 	Session, Time, Tick uint64
 	Position            [3]float32
 	Pitch, Yaw, HeadYaw float32
 	Mode                uint32
 	Missed              bool
+	Control             uint8
 }
 
 func DecodeInput(body []byte) (Input, error) {
@@ -17,6 +29,9 @@ func DecodeInput(body []byte) (Input, error) {
 	m.Pitch, m.Yaw, m.HeadYaw = r.F32(), r.F32(), r.F32()
 	m.Mode = r.U32()
 	m.Missed = r.U8() != 0
+	if r.off < len(r.buf) {
+		m.Control = r.U8()
+	}
 	return m, r.Err()
 }
 
@@ -36,6 +51,9 @@ func (m Input) Encode() []byte {
 			w.U8(1)
 		} else {
 			w.U8(0)
+		}
+		if m.Control != 0 {
+			w.U8(m.Control)
 		}
 	})
 }

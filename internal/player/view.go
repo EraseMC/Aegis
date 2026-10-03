@@ -77,6 +77,8 @@ type View struct {
 	pending      []wire.Observation
 	markers      []marker
 	LastAck, RTT uint64
+	VelocityAt   uint64
+	Velocity     [3]float32
 	invalid      bool
 }
 
@@ -109,8 +111,6 @@ func (v *View) Mark(id int64, at uint64) {
 
 func (v *View) Ack(id int64, at uint64) bool {
 	index := -1
-	// Bedrock clients may return this timestamp in microseconds/nanoseconds.
-	// Match only exact conversions of an outstanding marker, never rounded values.
 	for _, scale := range [...]int64{1, 1000, 1000000} {
 		if id <= 0 || id%scale != 0 {
 			continue
@@ -130,6 +130,10 @@ func (v *View) Ack(id int64, at uint64) bool {
 	}
 	for _, m := range v.markers[:index+1] {
 		for _, u := range m.Updates {
+			if u.Kind == wire.Velocity {
+				v.VelocityAt, v.Velocity = at, [3]float32{u.Box[0], u.Box[1], u.Box[2]}
+				continue
+			}
 			if u.Kind != wire.EntityUpdate && u.Kind != wire.EntityRemove {
 				continue
 			}
@@ -193,7 +197,7 @@ func (v *View) Measure(id, at uint64, positions, directions [][3]float32) Combat
 		for _, pos := range positions {
 			e.Raw = min(e.Raw, box.Distance(pos))
 			for _, d := range directions {
-				if ray, hit := box.RayDistance(pos, d, 0.1); hit {
+				if ray, hit := box.RayDistance(pos, d, 0.03); hit {
 					e.Ray = min(e.Ray, ray)
 				}
 				e.AimHit = e.AimHit || box.Ray(pos, d, 0.35)
@@ -203,12 +207,11 @@ func (v *View) Measure(id, at uint64, positions, directions [][3]float32) Combat
 	var previous Box
 	for i := 0; i < t.Count; i++ {
 		s := t.Samples[(t.Next-1-i+historySize)%historySize]
-		if i > 0 && at-s.At > min(uint64(650), v.RTT+350) {
+		if i > 0 && at-s.At > min(uint64(500), v.RTT+150) {
 			break
 		}
 		box := s.Box
 		if i > 0 {
-			// Include the swept envelope: clients interpolate between acknowledged positions.
 			for axis := 0; axis < 3; axis++ {
 				box[axis] = min(box[axis], previous[axis])
 				box[axis+3] = max(box[axis+3], previous[axis+3])
@@ -217,7 +220,6 @@ func (v *View) Measure(id, at uint64, positions, directions [][3]float32) Combat
 		previous = s.Box
 		measure(box)
 	}
-	// Unacknowledged moves enlarge the acceptable envelope but never authorize a new entity.
 	for _, m := range v.markers {
 		for _, u := range m.Updates {
 			if u.Target == id && u.Kind == wire.EntityUpdate {

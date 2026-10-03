@@ -41,6 +41,8 @@ type Player struct {
 	GraceUntil                    uint64
 	CombatGraceUntil              uint64
 	LastInput                     uint64
+	ControlsKnown                 bool
+	LastSwing                     uint64
 
 	checks   []Check
 	reporter Reporter
@@ -77,6 +79,15 @@ func (p *Player) Serverbound(pk packet.Packet, at uint64) {
 		p.Directions[p.DirectionNext] = Direction(input.Yaw, input.Pitch)
 		p.DirectionNext = (p.DirectionNext + 1) % len(p.Directions)
 		p.DirectionCount = min(p.DirectionCount+1, len(p.Directions))
+		if Input(input.InputData, packet.InputFlagMissedSwing) {
+			p.LastSwing = at
+		}
+	}
+	if swing, ok := pk.(*packet.LevelSoundEvent); ok && swing.SoundType == packet.SoundEventAttackNoDamage {
+		p.LastSwing = at
+	}
+	if animation, ok := pk.(*packet.Animate); ok && animation.ActionType == packet.AnimateActionSwingArm {
+		p.LastSwing = at
 	}
 	for _, c := range p.checks {
 		c.Serverbound(p, pk, at)
@@ -85,6 +96,11 @@ func (p *Player) Serverbound(pk packet.Packet, at uint64) {
 		p.ClientTick = input.Tick
 		p.LastInput = at
 	}
+}
+
+func (p *Player) Grounded(position [3]float32) bool {
+	feet := position[1] - p.State.Offset
+	return p.State.Flags&wire.StateGround != 0 && feet-p.State.Position[1] < 0.035 && feet-p.State.Position[1] > -0.035
 }
 
 func (p *Player) Observe(u wire.Observation) {
@@ -109,7 +125,6 @@ func (p *Player) Ready(at uint64) bool {
 }
 
 func (p *Player) CombatReady(at uint64) bool {
-	// Knockback and special terrain invalidate movement prediction, not attack geometry.
 	return p.State.Time > 0 && at >= p.State.Time && at-p.State.Time <= 750 && at >= p.CombatGraceUntil &&
 		p.State.Flags&(wire.StateFlying|wire.StateLagging|wire.StateDead|wire.StateFrozen) == 0 && p.View.Synced(at)
 }

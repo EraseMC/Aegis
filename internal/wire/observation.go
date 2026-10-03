@@ -16,6 +16,8 @@ const (
 	StateDead
 	StateFrozen
 	StateCeiling
+	StatePhysics
+	StateObstructed
 )
 
 type Observation struct {

@@ -15,11 +15,15 @@ var factories = map[string]factory{
 	KillAuraA:    func(s config.Check) player.Check { return newCombat(KillAuraA, s, true) },
 	SpeedA:       func(s config.Check) player.Check { return newMovement(SpeedA, s, false) },
 	FlyA:         func(s config.Check) player.Check { return newMovement(FlyA, s, true) },
+	KillAuraB:    func(s config.Check) player.Check { return newAura(s) },
+	AutoCritA:    func(s config.Check) player.Check { return newJumpCheck(AutoCritA, s, true) },
+	VelocityA:    func(s config.Check) player.Check { return newVelocity(s) },
+	NoJumpDelayA: func(s config.Check) player.Check { return newJumpCheck(NoJumpDelayA, s, false) },
 }
 
 func Build(cfg config.Config) []player.Check {
 	checks := make([]player.Check, 0, len(factories))
-	for _, name := range []string{TimerA, AutoclickerA, BadPacketA, ReachA, KillAuraA, SpeedA, FlyA} {
+	for _, name := range []string{TimerA, AutoclickerA, BadPacketA, ReachA, KillAuraA, SpeedA, FlyA, KillAuraB, AutoCritA, VelocityA, NoJumpDelayA} {
 		settings := cfg.Check(name)
 		if settings.Enabled {
 			checks = append(checks, factories[name](settings))

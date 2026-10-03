@@ -26,6 +26,7 @@ const (
 	TypeInput       Type = 0x09
 	TypeAttack      Type = 0x0a
 	TypeSwing       Type = 0x0b
+	TypeAnimation   Type = 0x0c
 
 	TypeWelcome Type = 0x81
 	TypeFlag    Type = 0x82

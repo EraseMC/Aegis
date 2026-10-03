@@ -43,7 +43,7 @@ func (e *Engine) Players() int {
 }
 
 func (e *Engine) Handle(t wire.Type, body []byte) error {
-	if t == wire.TypeInput || t == wire.TypeAttack || t == wire.TypeSwing || t == wire.TypeServerbound {
+	if t == wire.TypeInput || t == wire.TypeAttack || t == wire.TypeSwing || t == wire.TypeAnimation || t == wire.TypeServerbound {
 		e.packets++
 	}
 	switch t {
@@ -87,6 +87,23 @@ func (e *Engine) Handle(t wire.Type, body []byte) error {
 			if in.Missed {
 				flags.Set(packet.InputFlagMissedSwing)
 			}
+			for _, flag := range []struct {
+				control uint8
+				input   int
+			}{
+				{wire.ControlJump, packet.InputFlagJumping},
+				{wire.ControlJumpStart, packet.InputFlagStartJumping},
+				{wire.ControlSprint, packet.InputFlagSprinting},
+				{wire.ControlHorizontalCollision, packet.InputFlagHorizontalCollision},
+				{wire.ControlVerticalCollision, packet.InputFlagVerticalCollision},
+				{wire.ControlJumpPressed, packet.InputFlagJumpPressedRaw},
+				{wire.ControlSneak, packet.InputFlagSneaking},
+			} {
+				if in.Control&flag.control != 0 {
+					flags.Set(flag.input)
+				}
+			}
+			p.ControlsKnown = in.Control&wire.ControlKnown != 0
 			p.Serverbound(&packet.PlayerAuthInput{Tick: in.Tick, Position: in.Position, Pitch: in.Pitch, Yaw: in.Yaw, HeadYaw: in.HeadYaw, InputMode: in.Mode, InputData: flags}, in.Time)
 		}
 	case wire.TypeAttack:
@@ -104,6 +121,14 @@ func (e *Engine) Handle(t wire.Type, body []byte) error {
 		}
 		if p := e.players[in.Session]; p != nil {
 			p.Serverbound(&packet.LevelSoundEvent{SoundType: packet.SoundEventAttackNoDamage}, in.Time)
+		}
+	case wire.TypeAnimation:
+		in, err := wire.DecodeSwing(body)
+		if err != nil {
+			return err
+		}
+		if p := e.players[in.Session]; p != nil {
+			p.Serverbound(&packet.Animate{ActionType: packet.AnimateActionSwingArm}, in.Time)
 		}
 	case wire.TypeObservation:
 		u, err := wire.DecodeObservation(body)

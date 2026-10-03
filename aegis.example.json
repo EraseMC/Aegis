@@ -8,6 +8,10 @@
 		"Reach_A": {"enabled": true, "max": 10, "action": "ban"},
 		"KillAura_A": {"enabled": true, "max": 10, "action": "ban"},
 		"Speed_A": {"enabled": true, "max": 10, "action": "kick"},
-		"Fly_A": {"enabled": true, "max": 10, "action": "kick"}
+		"Fly_A": {"enabled": true, "max": 10, "action": "kick"},
+		"KillAura_B": {"enabled": true, "max": 10, "action": "none"},
+		"AutoCrit_A": {"enabled": true, "max": 10, "action": "none"},
+		"Velocity_A": {"enabled": true, "max": 10, "action": "none"},
+		"NoJumpDelay_A": {"enabled": true, "max": 10, "action": "none"}
 	}
 }
