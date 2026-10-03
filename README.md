@@ -2,7 +2,7 @@
 
 Server-side anticheat for Minecraft Bedrock, written in Go.
 
-Runs alongside PocketMine-MP. The [Practice-New](https://github.com/EraseMC/Practice-New)
+Runs alongside PocketMine-MP. The standalone [Aegis-PM](https://github.com/EraseMC/Aegis-PM)
 plugin forwards player input and server observations over a private TCP connection.
 Aegis returns violations and configured actions; the plugin handles alerts and enforcement.
 
@@ -14,7 +14,8 @@ Autoclickers up to 20 CPS are allowed on all input devices.
 Checks require validation against the server's movement and combat rules.
 They require acknowledged client state and skip stale or lagged observations.
 Movement detection uses conservative bounds, not a full physics simulation.
-Enforcement is disabled by the Practice bridge unless `ERASE_AEGIS_PUNISH=true`.
+Enforcement is disabled by default in Aegis-PM. Enable `punishments.enabled` in
+the plugin configuration after validating the checks on your server.
 
 ## Build
 
