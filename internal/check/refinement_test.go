@@ -203,6 +203,21 @@ func TestLegacyBridgeWithoutAnimationTelemetry(t *testing.T) {
 	}
 }
 
+func TestLegacyClientWithoutAttackAnimations(t *testing.T) {
+	p, r := combatPlayer(2, 0)
+	p.Protocol, p.ControlsKnown = 419, true
+	p.Serverbound(&packet.LevelSoundEvent{SoundType: packet.SoundEventAttackNoDamage}, 10050)
+	for tick := uint64(2); tick <= 180; tick++ {
+		at := 10000 + tick*50
+		ready(p, at, true)
+		p.Serverbound(&packet.InventoryTransaction{TransactionData: &protocol.UseItemOnEntityTransactionData{TargetEntityRuntimeID: 2, ActionType: protocol.UseItemOnEntityActionAttack}}, at)
+		p.Serverbound(input(tick, 0, 0), at)
+	}
+	if r.flags[KillAuraB] > 0 {
+		t.Fatal("miss sound does not confirm attack animation support", r.flags)
+	}
+}
+
 func TestVelocityConfirmationAndWalls(t *testing.T) {
 	for _, scenario := range []struct {
 		name     string

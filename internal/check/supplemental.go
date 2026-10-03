@@ -55,7 +55,7 @@ func (c *aura) Serverbound(p *player.Player, pk packet.Packet, at uint64) {
 			known++
 		}
 	}
-	missingSwing := p.ControlsKnown && p.LastSwing > 0 && at >= p.LastSwing && at-p.LastSwing > 750
+	missingSwing := p.ControlsKnown && p.AnimationSeen && p.LastSwing > 0 && at >= p.LastSwing && at-p.LastSwing > 750
 	if known < 3 && (!missingSwing || known == 0) {
 		c.buffer = max(0, c.buffer-1)
 		c.pass(0.01)

@@ -43,6 +43,7 @@ type Player struct {
 	LastInput                     uint64
 	ControlsKnown                 bool
 	LastSwing                     uint64
+	AnimationSeen                 bool
 
 	checks   []Check
 	reporter Reporter
@@ -88,6 +89,7 @@ func (p *Player) Serverbound(pk packet.Packet, at uint64) {
 	}
 	if animation, ok := pk.(*packet.Animate); ok && animation.ActionType == packet.AnimateActionSwingArm {
 		p.LastSwing = at
+		p.AnimationSeen = true
 	}
 	for _, c := range p.checks {
 		c.Serverbound(p, pk, at)
